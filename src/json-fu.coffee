@@ -1,12 +1,11 @@
-### 
-JSONFu - Kick-ass JSON utilities for JavaScript
-###
+# JSONFu - Kick-ass JSON utilities for JavaScript
 
-###
-Splits the string by the (single) given separator char.  Does a reasonable job
-of ignoring commas inside quotes.  It isn't perfect but works adequately for most
-balanced or almost-balanced strings
-###
+# smartSplit String Mixin
+# -----------------------
+#
+# Splits the string by the (single) given separator char.  Does a reasonable job
+# of ignoring commas inside quotes.  It isn't perfect but works adequately for most
+# balanced or almost-balanced strings
 String::smartSplit = (separator) ->
     inSingleQuote = no
     inDoubleQuote = no
@@ -28,35 +27,36 @@ String::smartSplit = (separator) ->
 
     parts
 
-###
-A JSONPath is an n-dimensional vector into a JSONSpace
+# JSONPath
+# --------
 
-Paths are components that navigate into a space. Given a path vector:
-    <p0, p1, ... pn>
-
-The element returned is that obtained by starting at the root of the space, 
-    - Moving to the p0th object inside the root object
-    - Descending into that object and moving to the p1st object
-    - Descending into that object and moving to the p2nd object
-    - ...
-    - Descending into that object and moving to the pnth object
-    - Returning that object
-
-Paths that are outside the boundary of the space return undefined
-
-Observe that, in Javascript, objects are unordered sets of key/value pairs.
-The spec does not guarantee that these will be returned or represented in any
-particulary orders.  Because of this, the pn's are only numbers when referencing
-a scalar object or a position in an array.  For objects, the pn's will be the keys
-of the object.
-
-The following are examples of JSONPaths:
-    (0)
-    (0, 0)
-    (0, 3, 4, 2, 8, 0)
-    ("foo")
-    (0, 3, "foo", 3, "bar", 7)
-###
+# A JSONPath is an n-dimensional vector into a JSONSpace
+#
+# Paths are components that navigate into a space. Given a path vector:
+#    <p0, p1, ... pn>
+#
+# The element returned is that obtained by starting at the root of the space, 
+#    - Moving to the p0th object inside the root object
+#    - Descending into that object and moving to the p1st object
+#    - Descending into that object and moving to the p2nd object
+#    - ...
+#    - Descending into that object and moving to the pnth object
+#    - Returning that object
+#
+# Paths that are outside the boundary of the space return undefined
+#
+# Observe that, in Javascript, objects are unordered sets of key/value pairs.
+# The spec does not guarantee that these will be returned or represented in any
+# particulary orders.  Because of this, the pn's are only numbers when referencing
+# a scalar object or a position in an array.  For objects, the pn's will be the keys
+# of the object.
+#
+# The following are examples of JSONPaths:
+#    (0)
+#    (0, 0)
+#     (0, 3, 4, 2, 8, 0)
+#    ("foo")
+#    (0, 3, "foo", 3, "bar", 7)
 class JSONPath
     @className = "JSONPath"
     
@@ -96,9 +96,10 @@ class JSONPath
     toJSON: () ->
         toString()
 
-###
-JSONNavigators return one more more nodes in the object graph given various queries
-###
+# JSONNavigator
+# -------------
+#
+# JSONNavigators return one more more nodes in the object graph given various queries
 class JSONNavigator
     @className = "JSONNavigator"
 
@@ -120,17 +121,17 @@ class JSONNavigator
         childNav = new JSONNavigator(child)
         return childNav.objectAtPath restOfPath
 
-
-###
-A JSONSpace is a code representation of an eventual JSON encoding of an object or part of an object.
-
-    Each value in an array is a JSONSpace
-    Each value in a key/value object property is a JSONSpace
-    The root object, array, or value is a JSONSpace
-
-    Representing an object graph as a graph of JSONSpaces before stringifying it makes it easier
-    to do advanced operations like recording references to other parts of the object graph
-###
+# JSONSpace
+# ---------
+#
+# A JSONSpace is a code representation of an eventual JSON encoding of an object or part of an object.
+#
+#    Each value in an array is a JSONSpace
+# Each value in a key/value object property is a JSONSpace
+# The root object, array, or value is a JSONSpace
+#   
+# Representing an object graph as a graph of JSONSpaces before stringifying it makes it easier
+# to do advanced operations like recording references to other parts of the object graph
 class JSONSpace
     @className = "JSONSpace"
 
@@ -176,11 +177,12 @@ class JSONSpace
             hash[key] = value for key, value of @children
             hash
 
-###
-A JSONSigil is a special value in the JSON representation that serves as a directive
-or provides more information.  For example, the MoreSigil is a way to specify that
-the object was deeper than what is currently represented
-###
+# JSONSigil
+# ---------
+#
+# A JSONSigil is a special value in the JSON representation that serves as a directive
+# or provides more information.  For example, the MoreSigil is a way to specify that
+# the object was deeper than what is currently represented
 class JSONSigil
     @className = "JSONSigil"
     @prefix = "__@JSON_"                # This should never show up in the wild
@@ -217,11 +219,12 @@ class JSONSigil
     
     toJSON: () -> @toString()
 
-###
-The NullSigil signifies that the original model had a defined key for this property but
-no value.  Useful because it's nice to reconstruct objects faithfully accross the wire
-even when there were empty properties
-###
+# NullSigil
+# ---------
+#
+# The NullSigil signifies that the original model had a defined key for this property but
+# no value.  Useful because it's nice to reconstruct objects faithfully accross the wire
+# even when there were empty properties
 class NullSigil extends JSONSigil
     @className = "NullSigil"
 
@@ -230,10 +233,11 @@ class NullSigil extends JSONSigil
 
     value: () -> null
 
-###
-The UndefinedSigil is like the NullSigil but it capture's undefined rather than null.  The 
-distinction is made because there's often a semantic difference that needs to be represented
-###
+# UndefinedSigil
+# --------------
+#
+# The UndefinedSigil is like the NullSigil but it capture's undefined rather than null.  The 
+# distinction is made because there's often a semantic difference that needs to be represented
 class UndefinedSigil extends JSONSigil
     @className = "UndefinedSigil"
     
@@ -242,15 +246,16 @@ class UndefinedSigil extends JSONSigil
 
     value: () -> undefined
 
-###
-The MoreSigil signifies that the original model had deeper structure than what is represented here.
-It has an optional parameter that specifies how many immediate properties were not serialized.
-
-For example, if there was an array with 20 elements, the Sigil would be __@JSON_more(20)
-
-Very useful as hints to clients that want to know more about the deeper structure without actually
-retrieving it
-###
+# MoreSigil
+# ---------
+#
+# The MoreSigil signifies that the original model had deeper structure than what is represented here.
+# It has an optional parameter that specifies how many immediate properties were not serialized.
+#
+# For example, if there was an array with 20 elements, the Sigil would be __@JSON_more(20)
+# 
+# Very useful as hints to clients that want to know more about the deeper structure without actually
+# retrieving it
 class MoreSigil extends JSONSigil
     @className = "MoreSigil"
 
@@ -269,10 +274,11 @@ class MoreSigil extends JSONSigil
         else
             super
 
-###
-A RefSigil signifies a reference to another part of the JSONSpace.  The path 
-parameter is a JSONPath and is relative to the root of the space
-###
+# RefSigil
+# --------
+#
+# A RefSigil signifies a reference to another part of the JSONSpace.  The path 
+# parameter is a JSONPath and is relative to the root of the space
 class RefSigil extends JSONSigil
     @className = "RefSigil"
     
@@ -298,11 +304,12 @@ class RefSigil extends JSONSigil
     toString: () ->
         "#{super}#{@path.toString()}"
 
-### 
-A FunctionSigil specifies that the original object had a function here
-
-TODO: We should represent the function if possible and desired
-###
+# FunctionSigil
+# -------------
+# 
+# A FunctionSigil specifies that the original object had a function here
+# 
+# TODO: We should represent the function if possible and desired
 class FunctionSigil extends JSONSigil
     @className = "FunctionSigil"
 
@@ -310,6 +317,9 @@ class FunctionSigil extends JSONSigil
         super "function"
 
     value: () -> () ->
+
+# Internal Methods
+# ----------------
 
 # This takes an object and turns it into a jsonSpace, but that was probably obvious
 toJsonSpace = (object, parentSpace, path, depthLimit, sigils) ->
@@ -436,29 +446,8 @@ fromJsonSpace = (space, references = {}, path = new JSONPath) ->
 
     ret
 
-testObjects = []
-testObjects.push "a string"
-testObjects.push []
-testObjects.push ["one element"]
-testObjects.push ["two elements", 42]
-testObjects.push {}
-testObjects.push {one:1}
-testObjects.push {two:2, deep:[1, 2, "three"]}
-testObjects.push {"already_quoted": "value"}
-testObjects.push null                               # Should be a NullSigil
-testObjects.push undefined                          # Should be an UndefinedSigil
-
-class TestClass
-    constructor: (@one) ->
-
-    @static = "foo"
-
-testObjects.push TestClass                          # Should be a FunctionSigil
-testObjects.push new TestClass "bar"
-testObjects.push testObjects[0]                     # Should not be a RefSigil because it's a string
-testObjects.push testObjects[3]                     # Should be a RefSigil because it's an array
-testObjects.push testObjects                        # Should be a RefSigil and not cause infinite regress
-testObjects.push {a:"deeply", embedded: {object: "with", alot: ["of", levels: {one: "1", two: "two", three: "three"}]}}
+# Module Exports
+# --------------
 
 # Stringify works just like JSON.stringify, with the addition of the depth parameter
 exports.stringify = (object, depth = null, replacer = null) ->
@@ -498,15 +487,40 @@ exports.deserialize = (json, reviver = null) ->
     
     obj
 
-json = exports.stringify(testObjects, 2)
-console.log "JSON"
-console.log json
-console.log "\n\n"
+exports.testThisThing = () ->
+    testObjects = []
+    testObjects.push "a string"
+    testObjects.push []
+    testObjects.push ["one element"]
+    testObjects.push ["two elements", 42]
+    testObjects.push {}
+    testObjects.push {one:1}
+    testObjects.push {two:2, deep:[1, 2, "three"]}
+    testObjects.push {"already_quoted": "value"}
+    testObjects.push null                               # Should be a NullSigil
+    testObjects.push undefined                          # Should be an UndefinedSigil
 
-console.log "PARSING"
-console.log exports.parse json
-console.log "\n\n"
+    class TestClass
+        constructor: (@one) ->
 
-console.log "DESERIALIZING"
-console.log exports.deserialize json
-
+        @static = "foo"
+        
+    testObjects.push TestClass                          # Should be a FunctionSigil
+    testObjects.push new TestClass "bar"
+    testObjects.push testObjects[0]                     # Should not be a RefSigil because it's a string
+    testObjects.push testObjects[3]                     # Should be a RefSigil because it's an array
+    testObjects.push testObjects                        # Should be a RefSigil and not cause infinite regress
+    testObjects.push {a:"deeply", embedded: {object: "with", alot: ["of", levels: {one: "1", two: "two", three: "three"}]}}
+    
+    json = exports.stringify(testObjects, 2)
+    console.log "JSON"
+    console.log json
+    console.log "\n\n"
+    
+    console.log "PARSING"
+    console.log exports.parse json
+    console.log "\n\n"
+    
+    console.log "DESERIALIZING"
+    console.log exports.deserialize json
+    
