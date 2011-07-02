@@ -449,6 +449,9 @@ fromJsonSpace = (space, references = {}, path = new JSONPath) ->
 # Module Exports
 # --------------
 
+# The current JSON Fu version
+exports.VERSION = '0.1.0'
+
 # Stringify works just like JSON.stringify, with the addition of the depth parameter
 exports.stringify = (object, depth = null, replacer = null) ->
     if not depth?
