@@ -13,7 +13,7 @@ reset = '\033[0m'
 # Built file header.
 header = """
   /**
-   * CoffeeScript Compiler v0.1.0
+   * CoffeeScript Compiler v0.2.1
    * http://github.com/greatfoudry/json-fu
    *
    * Copyright 2011, GreatFoundry Software, Inc.

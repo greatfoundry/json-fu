@@ -453,7 +453,7 @@ fromJsonSpace = (space, references = {}, path = new JSONPath) ->
 # --------------
 
 # The current JSON Fu version
-exports.VERSION = '0.1.0'
+exports.VERSION = '0.2.1'
 
 # Allow jpath-like syntax for finding an object in JavaScript object graph
 exports.selectObject = (root, jpath) ->
