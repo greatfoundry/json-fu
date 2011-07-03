@@ -6,7 +6,7 @@
 
    npm install json-fu
 
-= Overview
+## Overview
 
 JSON-Fu aims to be a collection of kick-ass JSON utilities for JavaScript and CoffeeScript.  Right now,  
 it supports the following features:
@@ -16,12 +16,12 @@ it supports the following features:
 * Fancy serialization and deserialization support with serialize() and deserialize()
 * Simple XPath-like query syntax (jPath) for object models
 
-= Serialization
+## Serialization
 
 Unlike simple JSON stringification, JSON-Fu's serialization functionality understands references inside the object.  
 It even handles circular references!
 
-= "More"
+## "More"
 
 Let's say you want to send a shallow version of a deeper object across the wire.  Wouldn't it be nice if the other side  
 not only knew that there was a deeper version available, but how many subobjects there were at the next level?
@@ -60,7 +60,7 @@ that it could get more information about tasks, but put the number of tasks it w
 (4) on the UI.  This kind of thing usually requires custom code, but it's built in  
 to JSON-Fu!
 
-= XPath-like querying with jPath
+## XPath-like querying with jPath
 
 JSON-Fu has a simple method called "selectObject" that takes a root object and a "jPath"  
 query string.  It then returns the object matching that string (or undefined if not found).
@@ -76,5 +76,5 @@ Examples:
     object = [1, 2, "foo": {bar: "baz"}];
     jsonfu.selectObject(object, "/foo/bar") === "baz"
 
-JSON-Fu is Copyright (c) 2011 by GreatFoundry Software, Inc.
-It is free software under the MIT license
+##### JSON-Fu is Copyright (c) 2011 by [GreatFoundry Software, Inc.](http://www.greatfoundry.com)
+##### It is free software under the MIT license
