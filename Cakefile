@@ -1,6 +1,7 @@
 # Based on jashkenas' Cakefile for the wonderful CoffeeScript
 fs            = require 'fs'
 path          = require 'path'
+CoffeeScript  = require 'coffee-script'
 {spawn, exec} = require 'child_process'
 
 # ANSI Terminal Colors.
@@ -35,13 +36,6 @@ task 'build', 'build json-fu from source', ->
     if err then console.log stderr.trim() else log 'done', green
   )
 
-task 'build:full', 'rebuild the source twice, and run the tests', ->
-  exec 'bin/cake build && bin/cake build && bin/cake test', (err, stdout, stderr) ->
-    console.log stdout.trim() if stdout
-    console.log stderr.trim() if stderr
-    throw err    if err
-
-
 task 'doc:site', 'watch and continually rebuild the documentation for the website', ->
   exec 'rake doc', (err) ->
     throw err if err
@@ -56,21 +50,6 @@ task 'doc:underscore', 'rebuild the Underscore.coffee documentation page', ->
   exec 'docco examples/underscore.coffee && cp -rf docs documentation && rm -r docs', (err) ->
     throw err if err
 
-task 'bench', 'quick benchmark of compilation time', ->
-  {Rewriter} = require './lib/rewriter'
-  co     = sources.map((name) -> fs.readFileSync name).join '\n'
-  fmt    = (ms) -> " #{bold}#{ "   #{ms}".slice -4 }#{reset} ms"
-  total  = 0
-  now    = Date.now()
-  time   = -> total += ms = -(now - now = Date.now()); fmt ms
-  tokens = CoffeeScript.tokens co, rewrite: false
-  console.log "Lex    #{time()} (#{tokens.length} tokens)"
-  tokens = new Rewriter().rewrite tokens
-  console.log "Rewrite#{time()} (#{tokens.length} tokens)"
-  nodes  = CoffeeScript.nodes tokens
-  console.log "Parse  #{time()}"
-  js     = nodes.compile bare: true
-  console.log "Compile#{time()} (#{js.length} chars)"
   console.log "total  #{ fmt total }"
 
 task 'loc', 'count the lines of source code in the CoffeeScript compiler', ->
@@ -79,7 +58,7 @@ task 'loc', 'count the lines of source code in the CoffeeScript compiler', ->
 
 
 # Run the CoffeeScript test suite.
-runTests = (CoffeeScript) ->
+runTests = () ->
   startTime   = Date.now()
   currentFile = null
   passedTests = 0
@@ -98,6 +77,7 @@ runTests = (CoffeeScript) ->
 
   # Convenience aliases.
   global.eq = global.strictEqual
+  global.jsonfu = require './lib/json-fu'
   global.CoffeeScript = CoffeeScript
 
   # Our test helper function for delimiting different test cases.
@@ -157,7 +137,7 @@ runTests = (CoffeeScript) ->
           failures.push file: currentFile, error: e
 
 
-task 'test', 'run the CoffeeScript language test suite', ->
+task 'test', 'run the json-fu test suite', ->
   runTests CoffeeScript
 
 

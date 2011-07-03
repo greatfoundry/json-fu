@@ -109,10 +109,13 @@ class JSONNavigator
     # this space
     objectAtPath: (path) ->
         thisComponent = path.leadingComponent()
+        restOfPath = path.pathWithoutLeadingComponent()
+
+        if not thisComponent? and restOfPath.length > 0
+            return undefined
+        
         if not thisComponent?
             return @root
-        
-        restOfPath = path.pathWithoutLeadingComponent()
         
         child = @root[thisComponent]
         if not child?
@@ -452,6 +455,15 @@ fromJsonSpace = (space, references = {}, path = new JSONPath) ->
 # The current JSON Fu version
 exports.VERSION = '0.1.0'
 
+# Allow jpath-like syntax for finding an object in JavaScript object graph
+exports.selectObject = (root, jpath) ->
+    return undefined if not jpath? or jpath.trim() == ""
+    return undefined if not root?
+
+    components = jpath.split('/')
+    jsonPath = new JSONPath((component for component in components when component != '')...)
+    return new JSONNavigator(root).objectAtPath jsonPath
+
 # Stringify works just like JSON.stringify, with the addition of the depth parameter
 exports.stringify = (object, depth = null, replacer = null) ->
     if not depth?
@@ -490,40 +502,3 @@ exports.deserialize = (json, reviver = null) ->
     
     obj
 
-exports.testThisThing = () ->
-    testObjects = []
-    testObjects.push "a string"
-    testObjects.push []
-    testObjects.push ["one element"]
-    testObjects.push ["two elements", 42]
-    testObjects.push {}
-    testObjects.push {one:1}
-    testObjects.push {two:2, deep:[1, 2, "three"]}
-    testObjects.push {"already_quoted": "value"}
-    testObjects.push null                               # Should be a NullSigil
-    testObjects.push undefined                          # Should be an UndefinedSigil
-
-    class TestClass
-        constructor: (@one) ->
-
-        @static = "foo"
-        
-    testObjects.push TestClass                          # Should be a FunctionSigil
-    testObjects.push new TestClass "bar"
-    testObjects.push testObjects[0]                     # Should not be a RefSigil because it's a string
-    testObjects.push testObjects[3]                     # Should be a RefSigil because it's an array
-    testObjects.push testObjects                        # Should be a RefSigil and not cause infinite regress
-    testObjects.push {a:"deeply", embedded: {object: "with", alot: ["of", levels: {one: "1", two: "two", three: "three"}]}}
-    
-    json = exports.stringify(testObjects, 2)
-    console.log "JSON"
-    console.log json
-    console.log "\n\n"
-    
-    console.log "PARSING"
-    console.log exports.parse json
-    console.log "\n\n"
-    
-    console.log "DESERIALIZING"
-    console.log exports.deserialize json
-    
